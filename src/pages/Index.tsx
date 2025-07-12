@@ -1,90 +1,80 @@
 
-import { useState } from "react";
-import { Dumbbell, ChevronLeft, ChevronRight, Star, Users, Target, Award, Phone, MessageSquare, Instagram, Youtube } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Dumbbell, Menu, X, ChevronLeft, ChevronRight, Star, Users, Target, Award, Phone, MessageSquare, Instagram, Youtube } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import axios from "axios";
+import { API_BASE_URL } from "@/lib/utils";
+
+interface ReviewType {
+  id: number;
+  name: string;
+  rating: number;
+  image: string;
+  message: string;
+  is_top: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
 
 const Index = () => {
+
+  // Database data
+  const [events, setEvents] = useState([]);
+  const [plans, setPlans] = useState([]);
+  const [reviews, setReviews] = useState([]);
+  const [topReviews, setTopReviews] = useState<ReviewType[]>([]);
+
+  // state
   const [currentEventIndex, setCurrentEventIndex] = useState(0);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
   const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const topReviews = [
-    { name: "Sarah M.", rating: 5, image: "https://images.unsplash.com/photo-1494790108755-2616b612b5bb?w=40&h=40&fit=crop&crop=face" },
-    { name: "Mike R.", rating: 5, image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face" },
-    { name: "Jenny L.", rating: 5, image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop&crop=face" }
-  ];
+  // fetch data on loading
+  useEffect(() => {
+    const fetchData = async () => {
+      try{
+        setIsLoading(true);
 
-  const events = [
-    {
-      id: 1,
-      title: "30-Day Transformation Challenge",
-      date: "January 15 - February 15",
-      status: "upcoming",
-      image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=300&h=200&fit=crop",
-      description: "Transform your body in just 30 days with our comprehensive fitness challenge."
-    },
-    {
-      id: 2,
-      title: "Powerlifting Championship",
-      date: "December 10, 2024",
-      status: "previous",
-      image: "https://images.unsplash.com/photo-1583500178690-f7b6d3fdc2b3?w=300&h=200&fit=crop",
-      description: "Our annual powerlifting competition brought together the strongest athletes."
-    },
-    {
-      id: 3,
-      title: "Summer Shred Challenge",
-      date: "June 1 - August 31",
-      status: "previous",
-      image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=300&h=200&fit=crop",
-      description: "Get beach-ready with our intensive summer fitness program."
-    }
-  ];
+        // const [eventsRes, plansRes, reviewsRes, topReviewsRes] = await Promise.all([
+        //   axios.get(`${API_BASE_URL}/api/events`),
+        //   axios.get(`${API_BASE_URL}/api/plans`),
+        //   axios.get(`${API_BASE_URL}/api/reviews`),
+        //   axios.get(`${API_BASE_URL}/api/reviews/top`)
+        // ])
 
-  const reviews = [
-    {
-      name: "Alex Johnson",
-      rating: 5,
-      image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face",
-      message: "PowerHouse Gym has completely transformed my fitness journey. The trainers are exceptional and the equipment is top-notch!"
-    },
-    {
-      name: "Maria Garcia",
-      rating: 5,
-      image: "https://images.unsplash.com/photo-1494790108755-2616b612b5bb?w=50&h=50&fit=crop&crop=face",
-      message: "I've never felt stronger or more confident. The community here is incredibly supportive and motivating."
-    },
-    {
-      name: "David Chen",
-      rating: 5,
-      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face",
-      message: "The personalized training sessions helped me achieve goals I never thought possible. Highly recommend!"
-    }
-  ];
+        const eventsRes = await axios.get(`${API_BASE_URL}/api/events`);
+        const plansRes = await axios.get(`${API_BASE_URL}/api/plans`);
+        const reviewsRes = await axios.get(`${API_BASE_URL}/api/reviews`);
+        const topReviewsRes = await axios.get(`${API_BASE_URL}/api/reviews/top`);
 
-  const plans = [
-    {
-      type: "Daily Pass",
-      price: "$15",
-      period: "per day",
-      features: ["Full gym access", "Locker room", "Basic equipment"],
-      popular: false
-    },
-    {
-      type: "Weekly Plan",
-      price: "$75",
-      period: "per week",
-      features: ["Full gym access", "Group classes", "Locker room", "Towel service"],
-      popular: false
-    },
-    {
-      type: "Monthly Premium",
-      price: "$120",
-      period: "per month",
-      features: ["Full gym access", "Personal trainer session", "Group classes", "Nutrition consultation", "Premium locker"],
-      popular: true
-    }
-  ];
+        setEvents(eventsRes.data);
+        setPlans(plansRes.data);
+        setReviews(reviewsRes.data);
+        setTopReviews(topReviewsRes.data);
+
+        console.log('Top reviews from databse: ', reviews);
+        console.log('events', events);
+        console.log('plans: ', plans);
+
+      } catch (error) { console.error("Error fetching data: ", error); }
+      finally { setIsLoading(false); }
+    };
+    fetchData();
+  }, []);
+
+  const openDetails = (ev) => {
+    setSelectedEvent(ev);
+    setModalOpen(true);
+  };
+
+  const closeDetails = () => {
+    setModalOpen(false);
+    setSelectedEvent(null);
+  };
 
   const nextEvent = () => {
     setCurrentEventIndex((prev) => (prev + 1) % events.length);
@@ -102,6 +92,9 @@ const Index = () => {
     setCurrentReviewIndex((prev) => (prev - 1 + reviews.length) % reviews.length);
   };
 
+  if (!events.length) return <div className="text-white">Loading...</div>;
+  const currentEvent = events[currentEventIndex];
+
   return (
     <div className="min-h-screen bg-[#0F1108] text-white">
       {/* Hero Section */}
@@ -117,6 +110,8 @@ const Index = () => {
             <Dumbbell className="h-8 w-8 text-[#E2C044]" />
             <span className="text-2xl font-bold text-[#E2C044]">PowerHouse Gym</span>
           </div>
+
+          {/* Desktop links */}
           <div className="hidden md:flex space-x-8 text-[#CAD8DE]">
             <a href="#home" className="hover:text-[#E2C044] transition-colors">Home</a>
             <a href="#about" className="hover:text-[#E2C044] transition-colors">About</a>
@@ -124,28 +119,68 @@ const Index = () => {
             <a href="#plans" className="hover:text-[#E2C044] transition-colors">Plans</a>
             <a href="#contact" className="hover:text-[#E2C044] transition-colors">Contact</a>
           </div>
+
+          {/* Mobile menu button */}
+          <button
+            className="md:hidden text-[#CAD8DE] focus:outline-none"
+            onClick={() => setMobileOpen(!mobileOpen)}
+            aria-label="Toggle menu"
+          >
+            {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+          
         </nav>
 
-        {/* Top Reviews */}
-        <div className="relative z-10 px-6 lg:px-12 mt-8">
-          <div className="flex items-center space-x-6">
-            <span className="text-[#CAD8DE] text-sm">Top Rated:</span>
-            <div className="flex space-x-4">
-              {topReviews.map((review, index) => (
-                <div key={index} className="flex items-center space-x-2 bg-[#637074]/20 rounded-full px-3 py-1">
-                  <img src={review.image} alt={review.name} className="w-6 h-6 rounded-full" />
-                  <span className="text-xs text-[#CAD8DE]">{review.name}</span>
-                  <div className="flex">
-                    {[...Array(review.rating)].map((_, i) => (
-                      <Star key={i} className="w-3 h-3 fill-[#E2C044] text-[#E2C044]" />
-                    ))}
+        {/* Mobile dropdown */}
+        {mobileOpen && (
+          <div className="md:hidden bg-[#0F1108] text-[#CAD8DE] space-y-4 py-4 px-6">
+            <a href="#home" onClick={() => setMobileOpen(false)} className="block hover:text-[#E2C044]">Home</a>
+            <a href="#about" onClick={() => setMobileOpen(false)} className="block hover:text-[#E2C044]">About</a>
+            <a href="#events" onClick={() => setMobileOpen(false)} className="block hover:text-[#E2C044]">Events</a>
+            <a href="#plans" onClick={() => setMobileOpen(false)} className="block hover:text-[#E2C044]">Plans</a>
+            <a href="#contact" onClick={() => setMobileOpen(false)} className="block hover:text-[#E2C044]">Contact</a>
+          </div>
+        )}
+
+        {/* Top Reviews - Updated for Mobile Responsiveness */}
+        <div className="relative z-10 px-4 sm:px-6 lg:px-12 mt-4 sm:mt-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-6">
+            <span className="text-[#CAD8DE] text-sm whitespace-nowrap">Top Rated:</span>
+    
+            {/* Horizontal scrolling container */}
+            <div className="w-full overflow-x-auto pb-2 -mx-4 px-4 hide-scrollbar">
+              <div className="flex space-x-3 min-w-max">
+                {Array.isArray(topReviews) && topReviews.length > 0 ? (
+                  topReviews.map((review, index) => (
+                    <div 
+                    key={index} 
+                    className="flex items-center space-x-2 bg-[#637074]/20 rounded-full px-3 py-1 flex-shrink-0"
+                  >
+                    <img 
+                      src={review.image} 
+                      alt={review.name} 
+                      className="w-5 h-5 sm:w-6 sm:h-6 rounded-full" 
+                    />
+                    <span className="text-xs text-[#CAD8DE] whitespace-nowrap">
+                      {review.name}
+                    </span>
+                    <div className="flex">
+                      {[...Array(review.rating)].map((_, i) => (
+                      <Star 
+                        key={i} 
+                        className="w-2.5 h-2.5 sm:w-3 sm:h-3 fill-[#E2C044] text-[#E2C044]" 
+                      />
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))
+          ): (
+            <p className="text-xs text-[#CAD8DE]">Loading reviews...</p>
+          )}
           </div>
         </div>
-
+      </div>
+    </div>
         {/* Hero Content */}
         <div className="relative z-10 px-6 lg:px-12 mt-16 lg:mt-24 max-w-4xl">
           <h1 className="text-5xl lg:text-7xl font-bold text-[#E2C044] mb-6 leading-tight">
@@ -206,11 +241,13 @@ const Index = () => {
             GYM CHALLENGES & EVENTS
           </h2>
           <div className="relative">
+            {currentEvent ? (
+            <div onClick={() => openDetails(currentEvent)} className="cursor-pointer">
             <Card className="bg-[#637074]/20 border-[#E2C044] overflow-hidden">
               <div className="relative h-64 lg:h-80">
                 <img 
-                  src={events[currentEventIndex].image} 
-                  alt={events[currentEventIndex].title}
+                  src={currentEvent.image} 
+                  alt={currentEvent.title}
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute top-4 right-4">
@@ -219,21 +256,25 @@ const Index = () => {
                       ? 'bg-[#E2C044] text-[#0F1108]' 
                       : 'bg-[#637074] text-white'
                   }`}>
-                    {events[currentEventIndex].status.toUpperCase()}
+                    {currentEvent.status.toUpperCase()}
                   </span>
                 </div>
               </div>
               <CardContent className="p-6">
                 <h3 className="text-2xl font-bold text-[#E2C044] mb-2">
-                  {events[currentEventIndex].title}
+                  {currentEvent.title}
                 </h3>
-                <p className="text-[#CAD8DE] mb-4">{events[currentEventIndex].date}</p>
-                <p className="text-white leading-relaxed">{events[currentEventIndex].description}</p>
+                <p className="text-[#CAD8DE] mb-4">{currentEvent.date}</p>
+                <p className="text-white leading-relaxed">{currentEvent.description}</p>
                 <Button className="mt-4 bg-[#E2C044] text-[#0F1108] hover:bg-[#E2C044]/90">
                   Learn More
                 </Button>
               </CardContent>
             </Card>
+            </div>
+            ) : (
+              <div className="text-center text-white py-12">Loading event...</div>
+            )}
             <div className="flex justify-center mt-6 space-x-4">
               <Button
                 onClick={prevEvent}
@@ -252,9 +293,57 @@ const Index = () => {
                 <ChevronRight className="w-4 h-4" />
               </Button>
             </div>
-          </div>
+          </div> 
         </div>
       </section>
+
+      {modalOpen && selectedEvent && (
+      <div
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 p-4"
+        onClick={closeDetails}
+        >
+        <div
+          className="bg-[#0F1108] rounded-lg max-w-lg w-full relative"
+          onClick={(e) => e.stopPropagation()}
+          >
+          <button
+            className="absolute top-4 right-4 text-[#CAD8DE]"
+            onClick={closeDetails}
+            >
+            <X className="w-6 h-6" />
+          </button>
+          <img
+            src={selectedEvent.image}
+            alt={selectedEvent.title}
+            className="w-full h-52 object-cover rounded-t-lg"
+          />
+          <div className="p-6 text-[#CAD8DE]">
+            <h3 className="text-3xl font-bold text-[#E2C044] mb-2">
+              {selectedEvent.title}
+            </h3>
+            <p className="text-sm mb-4">{selectedEvent.date}</p>
+            <p className="mb-4">
+              {selectedEvent.fullDescription || selectedEvent.description}
+            </p>
+            {selectedEvent.location && (
+              <p><strong>Location:</strong> {selectedEvent.location}</p>
+            )}
+            {selectedEvent.prize && (
+              <p><strong>Prize:</strong> {selectedEvent.prize}</p>
+            )}
+            {selectedEvent.signupLink && (
+              <a
+                href={selectedEvent.signupLink}
+                className="inline-block mt-4 bg-[#E2C044] text-[#0F1108] px-4 py-2 rounded"
+                >
+                Sign Up
+              </a>
+            )}
+          </div>
+        </div>
+      </div>
+    )}
+
 
       {/* Payment Plans */}
       <section id="plans" className="py-20 px-6 lg:px-12 bg-[#CAD8DE]">
