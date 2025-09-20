@@ -6,11 +6,11 @@ VALUES
    0, '2025-09-19 10:00:00', '2025-09-19 10:00:00'),
 
   ('Weightlifting', '500',  'weekly',
-   '{"validity_days":7,"sessions_included":6,"access":"gym","trainer_access":true,"equipment":["barbells","plates", "machines"],"notes":"Includes 1 group coaching session"}',
+   '{"validity_days":7,"sessions_included":6,"access":"gym","trainer_access":true,"equipment":["barbells","plates", "machines"],"notes":"Drop-in access to weight area"}',
    0, '2025-09-19 10:00:00', '2025-09-19 10:00:00'),
 
   ('Weightlifting', '2000', 'monthly',
-   '{"validity_days":30,"sessions_included":24,"access":"gym","trainer_access":true,"equipment":["barbells","plates", "machines"],"notes":"Includes 4 coaching sessions and priority booking"}',
+   '{"validity_days":30,"sessions_included":24,"access":"gym","trainer_access":true,"equipment":["barbells","plates", "machines"],"notes":"Drop-in access to weight area"}',
    1, '2025-09-19 10:00:00', '2025-09-19 10:00:00'),
 
   ('Aerobics',      '120',  'daily',

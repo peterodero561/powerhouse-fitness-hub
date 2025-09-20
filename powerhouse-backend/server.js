@@ -11,9 +11,11 @@ app.use(cors());
 app.use(express.json());
 
 // DB connection
-db.sequelize.sync({force: false})
+if (process.env.NODE_ENV !== 'production') {
+  db.sequelize.sync({ force: false })
     .then(() => console.log('Database Synced'))
     .catch(err => console.error("Sync error: ", err));
+}
 
 // Routes
 const eventsRouter = require('./routes/events');
