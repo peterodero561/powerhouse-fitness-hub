@@ -19,7 +19,8 @@ const db = {
     sequelize,
     Event: require('./event.model')(sequelize, Sequelize),
     Review: require('./review.model')(sequelize, Sequelize),
-    Plan: require('./plan.model')(sequelize, Sequelize)
+    Plan: require('./plan.model')(sequelize, Sequelize),
+    Feature: require('./feature')(sequelize, Sequelize),
 };
 
 Object.keys(db).forEach(modelName => {

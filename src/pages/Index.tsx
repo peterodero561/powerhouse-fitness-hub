@@ -20,9 +20,9 @@ interface ReviewType {
 const Index = () => {
 
   // Database data
-  const [events, setEvents] = useState([]);
-  const [plans, setPlans] = useState([]);
-  const [reviews, setReviews] = useState([]);
+  const [events, setEvents] = useState<any[]>([]);
+  const [plans, setPlans] = useState<any[]>([]);
+  const [reviews, setReviews] = useState<any[]>([]);
   const [topReviews, setTopReviews] = useState<ReviewType[]>([]);
 
   // state
@@ -33,18 +33,33 @@ const Index = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
+  // normalize plans so plan.features is always an array of strings
+  const normalizePlan = (p: any) => {
+    const f = p.features || {};
+    const arr: string[] = [];
+
+    // structural info -> readable strings
+    if (f.sessions_included) arr.push(`${f.sessions_included} session${f.sessions_included > 1 ? 's' : ''} included`);
+    if (f.validity_days) arr.push(`Valid for ${f.validity_days} day${f.validity_days > 1 ? 's' : ''}`);
+    if (f.access) arr.push(`Access: ${f.access}`);
+    if (f.trainer_access) arr.push(f.trainer_access ? 'Trainer access included' : 'No trainer access');
+    if (Array.isArray(f.equipment) && f.equipment.length) {
+      // join as a single bullet or push each equipment item separately:
+      arr.push(`Equipment: ${f.equipment.join(', ')}`);
+      // OR to push each equipment item as its own list item:
+      // f.equipment.forEach((eq: string) => arr.push(eq));
+    }
+    if (f.notes) arr.push(f.notes);
+
+    // fallback: if nothing, maybe use an empty array
+    return { ...p, features: arr };
+  };
+
   // fetch data on loading
   useEffect(() => {
     const fetchData = async () => {
       try{
         setIsLoading(true);
-
-        // const [eventsRes, plansRes, reviewsRes, topReviewsRes] = await Promise.all([
-        //   axios.get(`${API_BASE_URL}/api/events`),
-        //   axios.get(`${API_BASE_URL}/api/plans`),
-        //   axios.get(`${API_BASE_URL}/api/reviews`),
-        //   axios.get(`${API_BASE_URL}/api/reviews/top`)
-        // ])
 
         const eventsRes = await axios.get(`${API_BASE_URL}/api/events`);
         const plansRes = await axios.get(`${API_BASE_URL}/api/plans`);
@@ -52,13 +67,13 @@ const Index = () => {
         const topReviewsRes = await axios.get(`${API_BASE_URL}/api/reviews/top`);
 
         setEvents(eventsRes.data);
-        setPlans(plansRes.data);
+        setPlans(plansRes.data.map(normalizePlan));
         setReviews(reviewsRes.data);
         setTopReviews(topReviewsRes.data);
 
-        console.log('Top reviews from databse: ', reviews);
-        console.log('events', events);
-        console.log('plans: ', plans);
+        console.log('Top reviews from databse: ', reviewsRes.data);
+        console.log('events', eventsRes.data);
+        console.log('plans: ', plansRes.data);
 
       } catch (error) { console.error("Error fetching data: ", error); }
       finally { setIsLoading(false); }
@@ -92,8 +107,11 @@ const Index = () => {
     setCurrentReviewIndex((prev) => (prev - 1 + reviews.length) % reviews.length);
   };
 
-  if (!events.length) return <div className="text-white">Loading...</div>;
-  const currentEvent = events[currentEventIndex];
+  if (isLoading || !events.length || !plans.length || !reviews.length ) {
+    return <div className="text-white text-center py-20">Loading...</div>;
+  }
+
+  const currentEvent = events[currentEventIndex] || null;
 
   return (
     <div className="min-h-screen bg-[#0F1108] text-white">
@@ -150,14 +168,14 @@ const Index = () => {
             {/* Horizontal scrolling container */}
             <div className="w-full overflow-x-auto pb-2 -mx-4 px-4 hide-scrollbar">
               <div className="flex space-x-3 min-w-max">
-                {Array.isArray(topReviews) && topReviews.length > 0 ? (
+                {topReviews.length > 0 ? (
                   topReviews.map((review, index) => (
                     <div 
                     key={index} 
                     className="flex items-center space-x-2 bg-[#637074]/20 rounded-full px-3 py-1 flex-shrink-0"
-                  >
+                    >
                     <img 
-                      src={review.image} 
+                      src="../../public/icons8-person-48.png" 
                       alt={review.name} 
                       className="w-5 h-5 sm:w-6 sm:h-6 rounded-full" 
                     />
@@ -172,15 +190,15 @@ const Index = () => {
                       />
                       ))}
                     </div>
-                  </div>
-                ))
-          ): (
-            <p className="text-xs text-[#CAD8DE]">Loading reviews...</p>
-          )}
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-xs text-[#CAD8DE]">No reviews available</p>
+                )}
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
         {/* Hero Content */}
         <div className="relative z-10 px-6 lg:px-12 mt-16 lg:mt-24 max-w-4xl">
           <h1 className="text-5xl lg:text-7xl font-bold text-[#E2C044] mb-6 leading-tight">
@@ -244,11 +262,11 @@ const Index = () => {
             {currentEvent ? (
             <div onClick={() => openDetails(currentEvent)} className="cursor-pointer">
             <Card className="bg-[#637074]/20 border-[#E2C044] overflow-hidden">
-              <div className="relative h-64 lg:h-80">
+              <div className="relative h-64 lg:h-80 flex-shrink-0">
                 <img 
-                  src={currentEvent.image} 
+                  src={`../../public/events/weightlifting.jpg`}
                   alt={currentEvent.title}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain"
                 />
                 <div className="absolute top-4 right-4">
                   <span className={`px-3 py-1 rounded-full text-xs font-bold ${
@@ -256,7 +274,7 @@ const Index = () => {
                       ? 'bg-[#E2C044] text-[#0F1108]' 
                       : 'bg-[#637074] text-white'
                   }`}>
-                    {currentEvent.status.toUpperCase()}
+                    {events[currentEventIndex].status.toUpperCase()}
                   </span>
                 </div>
               </div>
@@ -273,7 +291,7 @@ const Index = () => {
             </Card>
             </div>
             ) : (
-              <div className="text-center text-white py-12">Loading event...</div>
+              <div className="text-center text-white py-12">No events available</div>
             )}
             <div className="flex justify-center mt-6 space-x-4">
               <Button
@@ -313,9 +331,9 @@ const Index = () => {
             <X className="w-6 h-6" />
           </button>
           <img
-            src={selectedEvent.image}
+            src={`../../public/events/weightlifting.jpg`}
             alt={selectedEvent.title}
-            className="w-full h-52 object-cover rounded-t-lg"
+            className="w-full h-52 object-contain rounded-t-lg"
           />
           <div className="p-6 text-[#CAD8DE]">
             <h3 className="text-3xl font-bold text-[#E2C044] mb-2">
@@ -398,26 +416,30 @@ const Index = () => {
             MEMBER <span className="text-[#E2C044]">REVIEWS</span>
           </h2>
           <Card className="bg-white border-[#E2C044] p-8">
-            <div className="flex items-start space-x-4">
-              <img 
-                src={reviews[currentReviewIndex].image} 
-                alt={reviews[currentReviewIndex].name}
-                className="w-16 h-16 rounded-full object-cover"
-              />
-              <div className="flex-1">
-                <h4 className="text-xl font-bold text-[#0F1108] mb-1">
-                  {reviews[currentReviewIndex].name}
-                </h4>
-                <div className="flex mb-4">
-                  {[...Array(reviews[currentReviewIndex].rating)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 fill-[#E2C044] text-[#E2C044]" />
-                  ))}
+            {reviews.length > 0 ? (
+              <div className="flex items-start space-x-4">
+                <img 
+                  src="../../public/icons8-person-48.png" 
+                  alt={reviews[currentReviewIndex].name}
+                  className="w-16 h-16 rounded-full object-cover"
+                />
+                <div className="flex-1">
+                  <h4 className="text-xl font-bold text-[#0F1108] mb-1">
+                    {reviews[currentReviewIndex].name}
+                  </h4>
+                  <div className="flex mb-4">
+                    {[...Array(reviews[currentReviewIndex].rating)].map((_, i) => (
+                      <Star key={i} className="w-5 h-5 fill-[#E2C044] text-[#E2C044]" />
+                    ))}
+                  </div>
+                  <p className="text-[#637074] leading-relaxed text-lg">
+                    "{reviews[currentReviewIndex].message}"
+                  </p>
                 </div>
-                <p className="text-[#637074] leading-relaxed text-lg">
-                  "{reviews[currentReviewIndex].message}"
-                </p>
               </div>
-            </div>
+              ) : (
+                <div className="text-center py-8">No reviews available</div>
+              )}
           </Card>
           <div className="flex justify-center mt-6 space-x-4">
             <Button
@@ -449,31 +471,46 @@ const Index = () => {
           <p className="text-xl text-[#CAD8DE] mb-12">
             Ready to start your fitness journey? Contact us today!
           </p>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            <a href="tel:+1234567890" className="group">
-              <div className="w-16 h-16 bg-[#E2C044] rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                <Phone className="w-8 h-8 text-[#0F1108]" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* WhatsApp Contact */}
+            <a href="https://wa.me/0729284775" className="group" target='_blank' rel='noopener noreferrer'>
+              <div className="w-16 h-16 bg-[#25D366] rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                <svg xmlns="https://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-8 h-8 text-white fill-current">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                </svg>
               </div>
-              <span className="text-[#CAD8DE] group-hover:text-[#E2C044] transition-colors">Call Us</span>
+              <span className="text-[#CAD8DE] group-hover:text-[#E2C044] transition-colors">WhatsApp Us</span>
+              <p className="text-sm mt-1 text-[#637074]">+254 729 284 775</p>
             </a>
-            <a href="sms:+1234567890" className="group">
-              <div className="w-16 h-16 bg-[#E2C044] rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                <MessageSquare className="w-8 h-8 text-[#0F1108]" />
+
+            {/* TikTok contact */}
+            <a href="https://tiktok.com/powerhousegym" className="group" target="_blank" rel='noopener noreferrer'>
+              <div className="w-16 h-16 bg-[#000000] rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                <svg xmlns="https://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-8 h-8 text-white fill-current">
+                  <path d="M12.53.02C13.84 0 15.14.01 16.44 0c.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z" />
+                </svg>
               </div>
-              <span className="text-[#CAD8DE] group-hover:text-[#E2C044] transition-colors">Text Us</span>
+              <span className="text-[#CAD8DE] group-hover:text-[#69C9D0] transition-colors">TikTok</span>
+              <p className="text-sm mt1 text-[#637074]">@powerhousegym</p>
             </a>
-            <a href="https://instagram.com" className="group">
-              <div className="w-16 h-16 bg-[#E2C044] rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                <Instagram className="w-8 h-8 text-[#0F1108]" />
+
+            {/* Email contact */}
+            <a href="mailto:info@powerhousegym.com" className="group">
+              <div className="w-16 h-16 bg-[#D44638] rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                <svg xmlns="https://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-8 h-8 text-white fill-current">
+                  <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
+                </svg>
               </div>
-              <span className="text-[#CAD8DE] group-hover:text-[#E2C044] transition-colors">Instagram</span>
+              <span className="text-[#CAD8DE] group-hover:text-[#E2C044] transition-colors">Email Us</span>
+              <p className="text-sm mt-1 text-[#637074]">info@powerhousegym.com</p>
             </a>
-            <a href="https://youtube.com" className="group">
+
+            {/* <a href="https://youtube.com" className="group">
               <div className="w-16 h-16 bg-[#E2C044] rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
                 <Youtube className="w-8 h-8 text-[#0F1108]" />
               </div>
               <span className="text-[#CAD8DE] group-hover:text-[#E2C044] transition-colors">YouTube</span>
-            </a>
+            </a> */}
           </div>
         </div>
       </section>
@@ -485,7 +522,7 @@ const Index = () => {
             <Dumbbell className="h-6 w-6 text-[#E2C044]" />
             <span className="text-xl font-bold text-[#E2C044]">PowerHouse Gym</span>
           </div>
-          <p className="text-[#CAD8DE]">© 2024 PowerHouse Gym. All rights reserved.</p>
+          <p className="text-[#CAD8DE]">© {new Date().getFullYear()} PowerHouse Gym. All rights reserved.</p>
         </div>
       </footer>
     </div>
