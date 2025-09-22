@@ -10,8 +10,7 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-// DB connection
-if (process.env.NODE_ENV !== 'production') {
+
   (async () => {
     try {
 
@@ -22,7 +21,6 @@ if (process.env.NODE_ENV !== 'production') {
       console.error('Sequelize connection/sync error:', err);
     }
   })();
-}
 
 
 // Routes
