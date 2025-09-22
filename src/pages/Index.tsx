@@ -180,7 +180,7 @@ const Index = () => {
                     className="flex items-center space-x-2 bg-[#637074]/20 rounded-full px-3 py-1 flex-shrink-0"
                     >
                     <img 
-                      src="../../public/icons8-person-48.png" 
+                      src="/icons8-person-48.png" 
                       alt={review.name} 
                       className="w-5 h-5 sm:w-6 sm:h-6 rounded-full" 
                     />
@@ -269,7 +269,7 @@ const Index = () => {
             <Card className="bg-[#637074]/20 border-[#E2C044] overflow-hidden">
               <div className="relative h-64 lg:h-80 flex-shrink-0">
                 <img 
-                  src={`../../public/events/weightlifting.jpg`}
+                  src={`/events/weightlifting.jpg`}
                   alt={currentEvent.title}
                   className="w-full h-full object-contain"
                 />
@@ -336,7 +336,7 @@ const Index = () => {
             <X className="w-6 h-6" />
           </button>
           <img
-            src={`../../public/events/weightlifting.jpg`}
+            src={`/events/weightlifting.jpg`}
             alt={selectedEvent.title}
             className="w-full h-52 object-contain rounded-t-lg"
           />
@@ -424,7 +424,7 @@ const Index = () => {
             {reviews.length > 0 ? (
               <div className="flex items-start space-x-4">
                 <img 
-                  src="../../public/icons8-person-48.png" 
+                  src="/icons8-person-48.png" 
                   alt={reviews[currentReviewIndex].name}
                   className="w-16 h-16 rounded-full object-cover"
                 />
