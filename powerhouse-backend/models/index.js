@@ -2,11 +2,17 @@
 const Sequelize = require('sequelize');
 const config = require('../config/config');
 const env = process.env.NODE_ENV || 'development';
-const dbConfig = config[env];
+const dbConfig = config[env] || config.development;
+
+// logs for debugging
+console.log("NODE_ENV:", process.env.NODE_ENV);
+console.log("dbConfig loaded:", config);
 
 // Helper: if individual env vars are present, create a connection string safely
 function buildDatabaseUrlFromEnv() {
-  if (process.env.DATABASE_URL) return process.env.DATABASE_URL;
+  if (dbConfig.use_env_variable && process.env[dbConfig.use_env_variable]) {
+    return process.env[dbConfig.use_env_variable];
+  }
 
   const user = process.env.DB_USER || dbConfig.username || 'postgres';
   const pass = process.env.DB_PASSWORD || dbConfig.password || '';
