@@ -1,4 +1,4 @@
-INSERT INTO `features` (`title`, `description`, `images`, `createdAt`, `updatedAt`, `deletedAt`)
+INSERT INTO "Features" ("title", "description", "images", "createdAt", "updatedAt", "deletedAt")
 VALUES
   ('Best Equipment',
    'State-of-the-art fitness equipment from the world''s leading manufacturers, maintained to perfection.',
@@ -18,4 +18,5 @@ VALUES
   ('Group Classes',
    'Energetic group classes to keep you motivated — from aerobics to HIIT and more.',
    '["group-classes.jpg"]',
-   '2025-09-19 10:00:00', '2025-09-19 10:00:00', NULL);
+   '2025-09-19 10:00:00', '2025-09-19 10:00:00', NULL)
+ON CONFLICT DO NOTHING;
