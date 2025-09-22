@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../models');
 
 // All events in databse
 router.get('/', async (req, res) => {
     try{
+        const db = require('../models');
         const events = await db.Event.findAll();
         res.json(events);
     } catch (err) { res.status(500).json({ error: err.message }); }
@@ -13,6 +13,7 @@ router.get('/', async (req, res) => {
 // one event by id
 router.get('/:id', async (req, res) => {
     try{
+        const db = require('../models');
         const event = await db.Event.findByPk(req.params.id);
         if (event) {
             res.json(event);
@@ -26,6 +27,7 @@ router.get('/:id', async (req, res) => {
 
 router.post('/', async (req, res) => {
     try{
+        const db = require('../models');
         const event = await db.Event.create(req.body);
         res.status(201).json(event);
     } catch (error) { res.status(500).json({error: error.message}); }

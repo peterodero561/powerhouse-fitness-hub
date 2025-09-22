@@ -36,13 +36,14 @@ const db = {
   Sequelize,
   sequelize
 };
-  db.Event = require('./event.model')(sequelize, Sequelize),
-  db.Review = require('./review.model')(sequelize, Sequelize),
-  db.Plan = require('./plan.model')(sequelize, Sequelize),
-  db.Feature = require('./feature')(sequelize, Sequelize),
+
+db.Event = require('./event.model')(sequelize, Sequelize);
+db.Review = require('./review.model')(sequelize, Sequelize);
+db.Plan = require('./plan.model')(sequelize, Sequelize);
+db.Feature = require('./feature')(sequelize, Sequelize);
 
 
-Object.keys(db).forEach(modelName => {
+Object.values(db).forEach(model => {
   if (model.associate) {
     model.associate(db);
   }

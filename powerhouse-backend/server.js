@@ -14,17 +14,8 @@ app.use(express.json());
 if (process.env.NODE_ENV !== 'production') {
   (async () => {
     try {
-      // show what env Sequelize will use
-      console.log('Sequelize config -> host:', process.env.DB_HOST, 'db:', process.env.DB_NAME, 'user:', process.env.DB_USER);
 
       await db.sequelize.authenticate();
-      console.log('Sequelize: connection authenticated');
-
-      // list models registered in Sequelize
-      const modelNames = Object.keys(db.sequelize.models);
-      console.log('Sequelize models found:', modelNames.length ? modelNames : '<none>');
-
-      // call sync and log queries (enable logging in sync call)
       await db.sequelize.sync({ force: false, logging: console.log });
       console.log('Database Synced');
     } catch (err) {
