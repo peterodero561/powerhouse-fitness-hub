@@ -108,7 +108,12 @@ const Index = () => {
   };
 
   if (isLoading || !events.length || !plans.length || !reviews.length ) {
-    return <div className="text-black text-center py-20">Loading...</div>;
+    return (
+    <div className="flex flex-col items-center justify-center py-20">
+      <div className="w-12 h-12 border-4 border-gray-300 border-t-black rounded-full animate-spin" />
+      <p className="text-black text-center mt-4">Loading...</p>
+    </div>
+    )
   }
 
   const currentEvent = events[currentEventIndex] || null;
