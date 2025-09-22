@@ -1,5 +1,3 @@
-const { Description } = require("@radix-ui/react-dialog");
-
 module.exports = (sequelize, DataTypes) => {
     const Event = sequelize.define('Event', {
         title: { type: DataTypes.STRING, allowNull: false},
