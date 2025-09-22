@@ -4,10 +4,6 @@ const config = require('../config/config');
 const env = process.env.NODE_ENV || 'development';
 const dbConfig = config[env] || config.development;
 
-// logs for debugging
-console.log("NODE_ENV:", process.env.NODE_ENV);
-console.log("dbConfig loaded:", config);
-
 // Helper: if individual env vars are present, create a connection string safely
 function buildDatabaseUrlFromEnv() {
   if (dbConfig.use_env_variable && process.env[dbConfig.use_env_variable]) {
@@ -38,16 +34,17 @@ const sequelize = new Sequelize(connectionString, {
 
 const db = {
   Sequelize,
-  sequelize,
-  Event: require('./event.model')(sequelize, Sequelize),
-  Review: require('./review.model')(sequelize, Sequelize),
-  Plan: require('./plan.model')(sequelize, Sequelize),
-  Feature: require('./feature')(sequelize, Sequelize),
+  sequelize
 };
+  db.Event = require('./event.model')(sequelize, Sequelize),
+  db.Review = require('./review.model')(sequelize, Sequelize),
+  db.Plan = require('./plan.model')(sequelize, Sequelize),
+  db.Feature = require('./feature')(sequelize, Sequelize),
+
 
 Object.keys(db).forEach(modelName => {
-  if (db[modelName].associate) {
-    db[modelName].associate(db);
+  if (model.associate) {
+    model.associate(db);
   }
 });
 
