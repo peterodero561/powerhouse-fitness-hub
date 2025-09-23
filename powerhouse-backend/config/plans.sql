@@ -21,6 +21,6 @@ VALUES
    false, '2025-09-19 10:00:00', '2025-09-19 10:00:00'),
 
   ('Aerobics',      '2400', 'monthly',
-   '{"validity_days":30,"sessions_included":12,"access":"studio","trainer_access":true,"equipment":["mat", "barbells","plates", "machines"],"notes":"Drop-in aerobics class"}',
+   '{"validity_days":30,"sessions_included":20,"access":"studio","trainer_access":true,"equipment":["mat", "barbells","plates", "machines"],"notes":"Drop-in aerobics class"}',
    true, '2025-09-19 10:00:00', '2025-09-19 10:00:00')
 ON CONFLICT DO NOTHING;
